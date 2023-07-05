@@ -5,6 +5,9 @@ import json
 import locale
 import sys
 import reports
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.piecharts import Pie
+from reportlab.lib.units import inch
 
 
 def load_data(filename):
@@ -72,12 +75,23 @@ def main(argv):
     data = load_data("car_sales.json")
     summary = process_data(data)
     print(summary)
+    # TODO: create a pie chart for the total sales of each car made
+    report_pie = Pie(width=3 * inch, height=3 * inch)
+    report_pie.data = []
+    for item in data:
+        report_pie.data.append(item["total_sales"])
+        report_pie.labels.append(format_car(item["car"]))
+    report_chart = Drawing()
+    report_chart.add(report_pie)
+
+    # TODO: create a bar chart showing total sales for the top 10 best selling vehicles using the ReportLab Diagra library. Put the vehicle name on the X-axis and total revenue (remember, price * total sales!) along the Y-axis
+
     # TODO: turn this into a PDF report
     reports.generate(
         "/tmp/cars.pdf",
         "Sales summary for last month",
         "<br/>".join(summary),
-        cars_dict_to_table(data),
+        cars_dict_to_table(dict(sorted(data.items(), key=lambda x: x[0]))),
     )
     # TODO: send the PDF report as an email attachment
     sender = "automation@example.com"
